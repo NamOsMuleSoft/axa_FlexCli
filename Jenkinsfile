@@ -20,7 +20,7 @@ pipeline  {
 
 
         ANYPOINT_ORG = "21448f2a-f782-42b5-b7ea-3c78f2cd1c5d"
-        ANYPOINT_ENV = "Sanbox"
+        //ANYPOINT_ENV = "Sanbox"
 
         //QUe es ANYPOINT_CLIEN: T solo para retrieve user and pass??
         //ANYPOINT_CLIENT = "268c10e4c2fc44fab9f968b414b28735/e0d581990cFB45029fDd6D09F9176501"
