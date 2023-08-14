@@ -1,0 +1,64 @@
+[
+    {
+      "groupId": "68ef9520-24e9-4cf2-b2f5-620025690913",
+      "assetId": "rate-limiting",
+      "assetVersion": "1.4.0",
+      "configurationData": {
+        "rateLimits": [
+          { "maximumRequests": 200, "timePeriodInMilliseconds": 1000 }
+        ],
+        "clusterizable": false,
+        "exposeHeaders": true
+      },
+      "pointcutData": null,
+      "disabled": false,
+      "order": 1
+    },
+    {
+      "groupId": "68ef9520-24e9-4cf2-b2f5-620025690913",
+      "assetId": "message-logging",
+      "assetVersion": "2.0.1",
+      "configurationData": {
+        "loggingConfiguration": [
+          {
+            "itemName": "Default configuration",
+            "itemData": {
+              "message": "#[authentication.properties.claims]",
+              "category": "security",
+              "level": "INFO",
+              "firstSection": true,
+              "secondSection": false
+            }
+          }
+        ]
+      },
+      "pointcutData": null,
+      "disabled": false,
+      "order": 2
+    },
+    {
+      "groupId": "68ef9520-24e9-4cf2-b2f5-620025690913",
+      "assetId": "jwt-validation",
+      "assetVersion": "0.10.0",
+      "configurationData": {
+        "jwtOrigin": "httpBearerAuthenticationHeader",
+        "jwtExpression": "#[attributes.headers['jwt']]",
+        "signingMethod": "hmac",
+        "signingKeyLength": 256,
+        "jwtKeyOrigin": "text",
+        "textKey": "your_secret_key",
+        "jwksUrl": "http://your-jwks-service.example:80/base/path",
+        "skipClientIdValidation": true,
+        "clientIdExpression": "#[vars.claimSet.client_id]",
+        "validateAudClaim": false,
+        "mandatoryAudClaim": false,
+        "supportedAudiences": "aud.example.com",
+        "mandatoryExpClaim": true,
+        "mandatoryNbfClaim": false,
+        "validateCustomClaim": false
+      },
+      "pointcutData": null,
+      "disabled": false,
+      "order": 3
+    }
+  ]

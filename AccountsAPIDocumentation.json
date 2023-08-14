@@ -1,0 +1,1827 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+      "title": "Accounts API",
+      "description": "The Account API provides means to get accounts and transactions.",
+      "contact": { "url": "https://overview.tools.ndinfra.oneadr.net/teams" },
+      "license": { "name": "Nordea © 2023" },
+      "version": "4.0.0"
+    },
+    "servers": [
+      {
+        "url": "http://accounts-v3.dbf.oneadr.net",
+        "description": "Generated server url"
+      }
+    ],
+    "tags": [
+      {
+        "name": "accounts-internal",
+        "description": "Get all accounts for internal users"
+      },
+      {
+        "name": "accounts",
+        "description": "NDF accounts API"
+      }
+    ],
+    "paths": {
+      "/internal/accounts": {
+        "get": {
+          "tags": [ "accounts-internal" ],
+          "summary": "Get all accounts of a customer for an internal user",
+          "description": "Returns a list of accounts belonging to a customer with a given agreement and user",
+          "operationId": "getAccountListInternal",
+          "parameters": [
+            {
+              "name": "X-Nordea-Application-Id",
+              "in": "header",
+              "description": "Application ID or Client ID of request. Required by Audit Logging to trace client request correctly",
+              "required": true,
+              "schema": { "type": "string" }
+            },
+            {
+              "name": "X-Nordea-Session-Id",
+              "in": "header",
+              "description": "Session ID of request. Required by Audit Logging to trace client request correctly. If missing, Session ID in internal token will be used.",
+              "required": false,
+              "schema": { "type": "string" }
+            },
+            {
+              "name": "customer_number",
+              "in": "query",
+              "description": "Identification of the customer. SE:Unikund, DK:CVR, NO:SSN, FI:Currently unspecified",
+              "required": true,
+              "schema": {
+                "pattern": "^[a-zA-Z0-9-]*$",
+                "type": "string"
+              }
+            },
+            {
+              "name": "agreement_number",
+              "in": "query",
+              "description": "Identification of the customer agreement",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "format": "int64"
+              },
+              "example": 1234567
+            },
+            {
+              "name": "user_id",
+              "in": "query",
+              "description": "The id of the User to identify the person accessing the resources",
+              "required": false,
+              "schema": {
+                "pattern": "^[a-zA-Z0-9-]*$",
+                "type": "string"
+              }
+            },
+            {
+              "name": "country",
+              "in": "query",
+              "description": "Country of the customer. If not provided, for backward compatibility it defaults to SE.",
+              "required": false,
+              "schema": {
+                "pattern": "^[a-zA-Z0-9-]*$",
+                "type": "string",
+                "default": "SE"
+              }
+            },
+            {
+              "name": "segment",
+              "in": "query",
+              "description": "Segment of the customer. If not provided, for backward compatibility it defaults to corporate",
+              "required": false,
+              "schema": {
+                "pattern": "^[a-zA-Z0-9-]*$",
+                "type": "string",
+                "default": "corporate"
+              }
+            },
+            {
+              "name": "account_status",
+              "in": "query",
+              "description": "Only accounts with the specified account status will be included in the response The parameter can hold one or more account status give as AccountStatusEnum's (currently: blocked, restricted, closed or open). More parameter values should be send either as a list (account-status=blocked,closed) or as separate parameters (account-status=blocked&account-status=closed)If parameter is not set accounts with closed status will not be returned - same as setting account-status=blocked,restricted,open",
+              "required": false,
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Status of the account",
+                  "enum": [ "blocked", "closed", "open", "restricted" ]
+                }
+              }
+            }
+          ],
+          "responses": {
+            "422": {
+              "description": "Unprocessable Entity",
+              "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UnprocessableEntityError" } } }
+            },
+            "200": {
+              "description": "Success",
+              "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AccountEnvelope" } } }
+            },
+            "404": {
+              "description": "ResourceNotFound",
+              "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ResourceNotFound" } } }
+            },
+            "400": {
+              "description": "InvalidRequest",
+              "content": { "application/json": { "schema": { "$ref": "#/components/schemas/InvalidRequest" } } }
+            },
+            "401": {
+              "description": "UnauthorizedAccess",
+              "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UnauthorizedAccess" } } }
+            },
+            "403": {
+              "description": "Forbidden",
+              "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Forbidden" } } }
+            },
+            "500": {
+              "description": "InternalServerError",
+              "content": { "application/json": { "schema": { "$ref": "#/components/schemas/InternalServerError" } } }
+            },
+            "501": {
+              "description": "NotImplemented",
+              "content": { "application/json": { "schema": { "$ref": "#/components/schemas/NotImplemented" } } }
+            },
+            "503": {
+              "description": "ServiceUnavailable",
+              "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ServiceUnavailable" } } }
+            }
+          },
+          "x-visibility": "internal"
+        }
+      },
+      "/accounts/{account-id}/transactions/{transaction-id}": {
+        "get": {
+          "tags": [ "accounts" ],
+          "summary": "Get a specific transaction",
+          "description": "Returns information of a specific transaction",
+          "operationId": "getTransaction",
+          "parameters": [
+            {
+              "name": "Cache-Control",
+              "in": "header",
+              "description": "Header to control if cache should be used - if value set to no-cache then all cache be reset. Header will also be forwarded to underlying services, but then up to their implementation if as effect",
+              "required": false,
+              "schema": { "type": "string" },
+              "example": "no-cache"
+            },
+            {
+              "name": "account-id",
+              "in": "path",
+              "description": "The ID of the account the transaction belongs to",
+              "required": true,
+              "schema": {
+                "pattern": "^[A-Z0-9-]+$",
+                "type": "string"
+              },
+              "example": "NAID-FI-EUR-FI5315723500047428"
+            },
+            {
+              "name": "transaction-id",
+              "in": "path",
+              "description": "The ID of the transaction to retrieve",
+              "required": true,
+              "schema": {
+                "pattern": "^[a-zA-Z0-9.:_+/ -]+$",
+                "type": "string"
+              },
+              "example": "P012017-03-232017-03-23-11.17.37.767481"
+            }
+          ],
+          "responses": {
+            "422": {
+              "description": "Unprocessable Entity",
+              "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UnprocessableEntityError" } } }
+            },
+            "404": {
+              "description": "ResourceNotFound",
+              "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ResourceNotFound" } } }
+            },
+            "200": {
+              "description": "Success",
+              "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Transaction" } } }
+            },
+            "400": {
+              "description": "InvalidRequest",
+              "content": { "application/json": { "schema": { "$ref": "#/components/schemas/InvalidRequest" } } }
+            },
+            "401": {
+              "description": "UnauthorizedAccess",
+              "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UnauthorizedAccess" } } }
+            },
+            "403": {
+              "description": "Forbidden",
+              "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Forbidden" } } }
+            },
+            "500": {
+              "description": "InternalServerError",
+              "content": { "application/json": { "schema": { "$ref": "#/components/schemas/InternalServerError" } } }
+            },
+            "501": {
+              "description": "NotImplemented",
+              "content": { "application/json": { "schema": { "$ref": "#/components/schemas/NotImplemented" } } }
+            },
+            "503": {
+              "description": "ServiceUnavailable",
+              "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ServiceUnavailable" } } }
+            }
+          },
+          "security": [ { "nordea-token": [ "ndf", "basic-customer-access" ] } ],
+          "x-visibility": "external"
+        }
+      },
+      "/accounts/{account-id}/transactions": {
+        "get": {
+          "tags": [ "accounts" ],
+          "summary": "Get transactions of a specific account",
+          "description": "Returns a list of account transactions of a specific account",
+          "operationId": "getTransactionList",
+          "parameters": [
+            {
+              "name": "Cache-Control",
+              "in": "header",
+              "description": "Header to control if cache should be used - if value set to no-cache then all cache be reset. Header will also be forwarded to underlying services, but then up to their implementation if as effect",
+              "required": false,
+              "schema": { "type": "string" },
+              "example": "no-cache"
+            },
+            {
+              "name": "account-id",
+              "in": "path",
+              "description": "The ID of the account the transaction belongs to",
+              "required": true,
+              "schema": {
+                "pattern": "^[A-Z0-9-]+$",
+                "type": "string"
+              },
+              "example": "NAID-FI-EUR-FI5315723500047428"
+            },
+            {
+              "name": "continuation_key",
+              "in": "query",
+              "description": "Unique identifier where to start fetching transaction from for this account",
+              "required": false,
+              "schema": {
+                "pattern": "^[^/<>;#^%&?`\\\\\"']*$",
+                "type": "string",
+                "default": ""
+              },
+              "example": "0320200323000023--2"
+            },
+            {
+              "name": "start_date",
+              "in": "query",
+              "description": "The start (inclusive) date of the range of transactions to list (YYYY-MM-DD) based on booking date",
+              "required": false,
+              "schema": {
+                "type": "string",
+                "format": "date"
+              },
+              "example": "2022-01-01"
+            },
+            {
+              "name": "end_date",
+              "in": "query",
+              "description": "The end (inclusive) date of the range of transactions to list (YYYY-MM-DD) based on booking date",
+              "required": false,
+              "schema": {
+                "type": "string",
+                "format": "date"
+              },
+              "example": "2022-03-30"
+            },
+            {
+              "name": "lowest_amount",
+              "in": "query",
+              "description": "The lowest (inclusive) amount of the range of transactions to list, based on transaction amount",
+              "required": false,
+              "schema": { "type": "number" },
+              "example": 100.0
+            },
+            {
+              "name": "highest_amount",
+              "in": "query",
+              "description": "The highest (inclusive) amount of the range of transactions to list, based on transaction amount",
+              "required": false,
+              "schema": { "type": "number" },
+              "example": 500.0
+            },
+            {
+              "name": "free_text",
+              "in": "query",
+              "description": "Free text search. Any transaction text field can be matched against the input. No regular expressions allowed.",
+              "required": false,
+              "schema": {
+                "pattern": "^[^/<>;#^%&?`\\\\\"']*$",
+                "type": "string"
+              }
+            },
+            {
+              "name": "sort_by",
+              "in": "query",
+              "description": "Sorts by supported attribute in ascending or descending order. Default transaction_date_desc",
+              "required": false,
+              "schema": {
+                "type": "string",
+                "description": "Supported sort attribute in ascending or descending order",
+                "enum": [ "amount_asc", "amount_desc", "transaction_date_asc", "transaction_date_desc" ]
+              }
+            },
+            {
+              "name": "product_code",
+              "in": "query",
+              "description": "The product code of the given account. This is available in the Account-model returned in the account list.+'If consumer knows the product code for the account, it should be given here as query parameter. This will help the implementing service to deduce the location of the account and thus reduce vain calls to wrong backends.",
+              "required": false,
+              "schema": {
+                "pattern": "^[a-zA-Z0-9_-]*$",
+                "type": "string"
+              }
+            },
+            {
+              "name": "details",
+              "in": "query",
+              "description": "Indicates whether further transaction details should be included in the response. Default value is false (this parameter is primarily intended to be used by Open Banking). When details are requested (i.e. details=true) then the response time may increase dramatically.",
+              "required": false,
+              "schema": {
+                "type": "boolean",
+                "default": false
+              }
+            }
+          ],
+          "responses": {
+            "422": {
+              "description": "Unprocessable Entity",
+              "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UnprocessableEntityError" } } }
+            },
+            "404": {
+              "description": "ResourceNotFound",
+              "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ResourceNotFound" } } }
+            },
+            "200": {
+              "description": "Success",
+              "content": { "application/json": { "schema": { "$ref": "#/components/schemas/TransactionEnvelope" } } }
+            },
+            "400": {
+              "description": "InvalidRequest",
+              "content": { "application/json": { "schema": { "$ref": "#/components/schemas/InvalidRequest" } } }
+            },
+            "401": {
+              "description": "UnauthorizedAccess",
+              "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UnauthorizedAccess" } } }
+            },
+            "403": {
+              "description": "Forbidden",
+              "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Forbidden" } } }
+            },
+            "500": {
+              "description": "InternalServerError",
+              "content": { "application/json": { "schema": { "$ref": "#/components/schemas/InternalServerError" } } }
+            },
+            "501": {
+              "description": "NotImplemented",
+              "content": { "application/json": { "schema": { "$ref": "#/components/schemas/NotImplemented" } } }
+            },
+            "503": {
+              "description": "ServiceUnavailable",
+              "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ServiceUnavailable" } } }
+            }
+          },
+          "security": [ { "nordea-token": [ "ndf", "basic-customer-access" ] } ],
+          "x-visibility": "external"
+        }
+      },
+      "/accounts/{account-id}": {
+        "get": {
+          "tags": [ "accounts" ],
+          "summary": "Get a specific account",
+          "description": "Returns information of a specific account",
+          "operationId": "getAccount",
+          "parameters": [
+            {
+              "name": "Cache-Control",
+              "in": "header",
+              "description": "Header to control if cache should be used - if value set to no-cache then all cache be reset. Header will also be forwarded to underlying services, but then up to their implementation if as effect",
+              "required": false,
+              "schema": { "type": "string" },
+              "example": "no-cache"
+            },
+            {
+              "name": "account-id",
+              "in": "path",
+              "description": "The ID of the account to retrieve",
+              "required": true,
+              "schema": {
+                "pattern": "^[A-Z0-9-]+$",
+                "type": "string"
+              },
+              "example": "NAID-FI-EUR-FI5315723500047428"
+            },
+            {
+              "name": "details",
+              "in": "query",
+              "description": "Indicates whether account details should be included in the response, to be used if client just want account for naming or similar. When details is not requested (so details=false) then service may respond with a cached version. And result will NOT included following fields BookedBalance, AvailableBalance, LatestTransactionDate, InterestInfo and CreditLimit.",
+              "required": false,
+              "schema": {
+                "type": "boolean",
+                "default": true
+              }
+            },
+            {
+              "name": "product_code",
+              "in": "query",
+              "description": "The product code of the given account. This is available in the Account-model returned in the account list.+'If consumer knows the product code for the account, it should be given here as query parameter. This will help the implementing service to deduce the location of the account and thus reduce vain calls to wrong backends.",
+              "required": false,
+              "schema": {
+                "pattern": "^[a-zA-Z0-9_-]*$",
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "422": {
+              "description": "Unprocessable Entity",
+              "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UnprocessableEntityError" } } }
+            },
+            "200": {
+              "description": "Success",
+              "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Account" } } }
+            },
+            "404": {
+              "description": "ResourceNotFound",
+              "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ResourceNotFound" } } }
+            },
+            "400": {
+              "description": "InvalidRequest",
+              "content": { "application/json": { "schema": { "$ref": "#/components/schemas/InvalidRequest" } } }
+            },
+            "401": {
+              "description": "UnauthorizedAccess",
+              "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UnauthorizedAccess" } } }
+            },
+            "403": {
+              "description": "Forbidden",
+              "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Forbidden" } } }
+            },
+            "500": {
+              "description": "InternalServerError",
+              "content": { "application/json": { "schema": { "$ref": "#/components/schemas/InternalServerError" } } }
+            },
+            "501": {
+              "description": "NotImplemented",
+              "content": { "application/json": { "schema": { "$ref": "#/components/schemas/NotImplemented" } } }
+            },
+            "503": {
+              "description": "ServiceUnavailable",
+              "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ServiceUnavailable" } } }
+            }
+          },
+          "security": [ { "nordea-token": [ "ndf", "basic-customer-access" ] } ],
+          "x-visibility": "external"
+        }
+      },
+      "/accounts": {
+        "get": {
+          "tags": [ "accounts" ],
+          "summary": "Get all accounts",
+          "description": "Returns a list of accounts for a specific customer",
+          "operationId": "getAccountList",
+          "parameters": [
+            {
+              "name": "Cache-Control",
+              "in": "header",
+              "description": "Header to control if cache should be used - if value set to no-cache then all cache be reset. Header will also be forwarded to underlying services, but then up to their implementation if as effect",
+              "required": false,
+              "schema": { "type": "string" },
+              "example": "no-cache"
+            },
+            {
+              "name": "details",
+              "in": "query",
+              "description": "Default details are returned. Indicates whether account details should be included in the response, to be used if client just want accounts for dropdown or similar. When details is not requested (so details=false) then service may respond with a cached version. And result will NOT included following fields BookedBalance, AvailableBalance, LatestTransactionDate, InterestInfo and CreditLimit.",
+              "required": false,
+              "schema": {
+                "type": "boolean",
+                "default": true
+              }
+            },
+            {
+              "name": "account_status",
+              "in": "query",
+              "description": "Only accounts with the specified account status will be included in the response The parameter can hold one or more account status give as AccountStatusEnum's (currently: blocked, restricted, closed or open). More parameter values should be send either as a list (account-status=blocked,closed) or as separate parameters (account-status=blocked&account-status=closed)If parameter is not set accounts with closed status will not be returned - same as setting account-status=blocked,restricted,open",
+              "required": false,
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Status of the account",
+                  "enum": [ "blocked", "closed", "open", "restricted" ]
+                }
+              }
+            }
+          ],
+          "responses": {
+            "422": {
+              "description": "Unprocessable Entity",
+              "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UnprocessableEntityError" } } }
+            },
+            "200": {
+              "description": "Success",
+              "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AccountEnvelope" } } }
+            },
+            "404": {
+              "description": "ResourceNotFound",
+              "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ResourceNotFound" } } }
+            },
+            "400": {
+              "description": "InvalidRequest",
+              "content": { "application/json": { "schema": { "$ref": "#/components/schemas/InvalidRequest" } } }
+            },
+            "401": {
+              "description": "UnauthorizedAccess",
+              "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UnauthorizedAccess" } } }
+            },
+            "403": {
+              "description": "Forbidden",
+              "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Forbidden" } } }
+            },
+            "500": {
+              "description": "InternalServerError",
+              "content": { "application/json": { "schema": { "$ref": "#/components/schemas/InternalServerError" } } }
+            },
+            "501": {
+              "description": "NotImplemented",
+              "content": { "application/json": { "schema": { "$ref": "#/components/schemas/NotImplemented" } } }
+            },
+            "503": {
+              "description": "ServiceUnavailable",
+              "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ServiceUnavailable" } } }
+            }
+          },
+          "security": [ { "nordea-token": [ "ndf", "basic-customer-access" ] } ],
+          "x-visibility": "external"
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "UnprocessableEntityError": {
+          "required": [ "error", "error_description", "http_status" ],
+          "type": "object",
+          "properties": {
+            "error_reason": {
+              "type": "string",
+              "description": "The detailed reason that can be used for the logging and problem solving purposes."
+            },
+            "error": {
+              "type": "string",
+              "description": "Error code",
+              "example": "unprocessable_entity",
+              "enum": [ "unprocessable_entity" ]
+            },
+            "error_description": {
+              "type": "string",
+              "description": "The entity was unable to be processed",
+              "example": "The human readable description of the error."
+            },
+            "http_status": {
+              "type": "integer",
+              "description": "HTTP status",
+              "format": "int32",
+              "example": 422,
+              "enum": [ 422 ]
+            }
+          }
+        },
+        "Account": {
+          "required": [ "account_id", "permissions", "roles" ],
+          "type": "object",
+          "properties": {
+            "account_id": {
+              "type": "string",
+              "description": "The unique ID of the account",
+              "example": "NAID-FI-EUR-FI5315723500047428"
+            },
+            "main_account_number": {
+              "type": "string",
+              "description": "Account number of the main account. Available in case of account hierarchies. Currently in SE only",
+              "example": "NAID-SE-SEK-12345678912"
+            },
+            "display_account_number": {
+              "type": "string",
+              "description": "Account number in display format",
+              "example": "FI53 1572 3500 0474 28"
+            },
+            "source_account_number": {
+              "type": "string",
+              "description": "Account number from source system",
+              "example": "5315723500047428"
+            },
+            "iban": {
+              "type": "string",
+              "description": "IBAN number of the account",
+              "example": "FI5315723500047428"
+            },
+            "bic": {
+              "type": "string",
+              "description": "BIC number of the account",
+              "example": "NDEAFIHH"
+            },
+            "registration_number": {
+              "type": "string",
+              "description": "Registration number, this is in DK and the clearing number in SE which branch the account belong to",
+              "example": "2374"
+            },
+            "country_code": {
+              "type": "string",
+              "description": "Country of the account as a two letter code (ISO 3166-1)",
+              "example": "FI"
+            },
+            "product_code": {
+              "type": "string",
+              "description": "Product code of the account",
+              "example": "FI0331"
+            },
+            "product_name": {
+              "type": "string",
+              "description": "Product name of the account, corresponding to product code. Always returned in local language",
+              "example": "Käyttötili"
+            },
+            "account_name": {
+              "type": "string",
+              "description": "The account name recorded at the bank, may default to owner's name",
+              "example": "Auxiliary account"
+            },
+            "nickname": {
+              "type": "string",
+              "description": "The nickname of the account set by the customer",
+              "example": "My favorite account"
+            },
+            "product_type": {
+              "type": "string",
+              "description": "Account product type",
+              "example": "transaction"
+            },
+            "category": {
+              "type": "string",
+              "description": "Category of the account",
+              "enum": [ "transaction", "currency", "savings", "fixed_term", "other" ]
+            },
+            "account_status": {
+              "type": "string",
+              "description": "Status of the account",
+              "enum": [ "blocked", "closed", "open", "restricted" ]
+            },
+            "booked_balance": {
+              "type": "number",
+              "description": "Balance booked on the account",
+              "example": -100000.0
+            },
+            "credit_limit": {
+              "type": "number",
+              "description": "Credit limit of the account",
+              "example": 200000.0
+            },
+            "available_balance": {
+              "type": "number",
+              "description": "Balance available on the account (booked balance + credit limit - cover reservations)",
+              "example": 100000.0
+            },
+            "equivalent_balance": {
+              "type": "number",
+              "description": "If the account is currency account this is the equivalent balance in local currency",
+              "example": 100000.0
+            },
+            "currency": {
+              "type": "string",
+              "description": "Currency of the account as currency code (ISO 4217)",
+              "example": "EUR"
+            },
+            "equivalent_currency": {
+              "type": "string",
+              "description": "Currency of the equivalent balance as currency code (ISO 4217)",
+              "example": "DKK"
+            },
+            "value_dated_balance": {
+              "type": "number",
+              "description": "The balance on the basis of which interest is calculated on the account",
+              "example": 100000.0
+            },
+            "remaining_free_withdrawals": {
+              "type": "integer",
+              "description": "The number of remaining withdrawals that can be done on this account without additional fee",
+              "format": "int32",
+              "example": 2
+            },
+            "latest_transaction_date": {
+              "type": "string",
+              "description": "Date of the latest transaction booked on the account",
+              "format": "date",
+              "example": "2017-03-22"
+            },
+            "statement_format": {
+              "type": "string",
+              "description": "Account statement format",
+              "enum": [ "paper", "electronic", "paper_and_electronic" ]
+            },
+            "maturity_due_date": {
+              "type": "string",
+              "description": "Due date when savings account will be matured",
+              "format": "date",
+              "example": "2018-03-22"
+            },
+            "closing_date": {
+              "type": "string",
+              "description": "Date when the account was closed",
+              "format": "date",
+              "example": "2022-01-01"
+            },
+            "covered_by_deposit_guarantee": {
+              "type": "boolean",
+              "description": "Is the account covered by the deposit guarantee"
+            },
+            "roles": {
+              "type": "array",
+              "description": "List of users and their roles linked to the account",
+              "example": [{"name": "Henrik Kier", "role": "owner", "currentUser": true}],
+              "items": { "$ref": "#/components/schemas/Role" }
+            },
+            "permissions": { "$ref": "#/components/schemas/AccountPermissions" },
+            "interest_info": { "$ref": "#/components/schemas/InterestInfo" },
+            "interest": { "$ref": "#/components/schemas/InterestInfo" },
+            "flexi_deposit": { "$ref": "#/components/schemas/FlexiDeposit" },
+            "transaction_list_search_criteria": { "$ref": "#/components/schemas/TransactionListSearchCriteria" },
+            "commission_rate": {
+              "type": "number",
+              "description": "Commission rate of account",
+              "example": 13.13
+            },
+            "deposit_limit_current_year": { "$ref": "#/components/schemas/DepositLimitCurrentYear" },
+            "payment_limit": {
+              "type": "number",
+              "description": "Payment limit for the account. The largest amount that can be paid from the account. If present, this value should be used to determine the largest amount that can be paid from the account",
+              "example": 200000.0
+            },
+            "source_system": {
+              "type": "string",
+              "description": "The source system that contains the detailed information about the account",
+              "enum": [ "accounts_dk_currency", "accounts_dk_domestic", "accounts_fi", "accounts_no_corporate", "accounts_no_household", "accounts_se_8digit", "accounts_se_11digit", "accounts_cbp" ]
+            },
+            "data_retrieved_from": {
+              "type": "string",
+              "description": "Which system the accounts data was retrieved from: The original source system or ATS",
+              "enum": [ "from_source_system", "from_ats" ]
+            },
+            "is_public_sector_account": {
+              "type": "boolean",
+              "description": "Payments from public institutions can be transferred directly to this account."
+            },
+            "can_be_public_sector_account": {
+              "type": "boolean",
+              "description": "Shows whether this account can be chosen to be the Public Sector Account"
+            },
+            "default_payment_account": {
+              "type": "boolean",
+              "description": "Specifies whether the account is a default payment account"
+            },
+            "temporary_overdraft": { "$ref": "#/components/schemas/TemporaryOverdraft" },
+            "standard_overdraft": { "$ref": "#/components/schemas/StandardOverdraft" },
+            "esg_impact": { "$ref": "#/components/schemas/ESGImpactInfo" },
+            "start_date": {
+              "type": "string",
+              "description": "Account Start date",
+              "format": "date",
+              "example": "2017-03-22"
+            },
+            "is_ftd_account": {
+              "type": "boolean",
+              "description": "Is the account is FTD"
+            },
+            "automatic_renewal_text": {
+              "type": "string",
+              "description": "Automatic renewal text of the FTD account",
+              "example": "Automatic renewal text"
+            },
+            "maturity_amount": {
+              "type": "number",
+              "description": "Maturity Amount of the FTD account",
+              "example": 200000.0
+            }
+          },
+          "description": "Main account object"
+        },
+        "AccountEnvelope": {
+          "required": [ "result" ],
+          "type": "object",
+          "properties": {
+            "result": {
+              "type": "array",
+              "description": "Collection of Account objects",
+              "items": { "$ref": "#/components/schemas/Account" }
+            },
+            "sub_system_errors": {
+              "type": "array",
+              "description": "Collection of SubServiceErrorEnums",
+              "items": {
+                "type": "string",
+                "description": "Indication of which sub system was unable to process the request",
+                "enum": [ "account_cbp_service_error", "account_dk_service_error", "account_fi_service_error", "account_no_service_error", "account_se_service_error", "account_ca_service_error", "nickname_service_error", "beneficiary_service_error", "reconciliation_service_error" ]
+              }
+            }
+          },
+          "description": "Account list wrapper"
+        },
+        "AccountPermissions": {
+          "required": [ "can_close", "can_pay_from_account", "can_transfer_from_account", "can_transfer_to_account", "can_use_for_loan_repayment", "can_use_for_mortgage_loan_repayment", "can_view", "can_view_transactions" ],
+          "type": "object",
+          "properties": {
+            "can_view": {
+              "type": "boolean",
+              "description": "Whether or not the user is authorized to view the account"
+            },
+            "can_view_transactions": {
+              "type": "boolean",
+              "description": "Whether or not the user is authorized to view the transactions of account"
+            },
+            "can_pay_from_account": {
+              "type": "boolean",
+              "description": "Whether or not the user is authorized to make payments from this account"
+            },
+            "can_transfer_from_account": {
+              "type": "boolean",
+              "description": "Whether or not the user is authorized to make transfers from this account"
+            },
+            "can_transfer_to_account": {
+              "type": "boolean",
+              "description": "Whether or not the user is authorized to make transfers to this account"
+            },
+            "can_deposit_to_account": {
+              "type": "boolean",
+              "description": "Whether or not to allow deposits to this account"
+            },
+            "can_pay_international_from_account": {
+              "type": "boolean",
+              "description": "Whether or not the account type can be used to do international/cross-border payments. Is based on whitelist in each country, see country implementation to locate whitelist."
+            },
+            "can_pay_eligible": {
+              "type": "boolean",
+              "description": "Whether or not the account is eligible for payment. Needed in SE where customer needs to sign agreement to do payment, then if this is true then account is eligible to do payments from."
+            },
+            "require_physically_present_all_eye_signing": {
+              "type": "boolean",
+              "description": "Whether payments from this account requires a physically present all eye signing"
+            },
+            "can_use_for_loan_repayment": {
+              "type": "boolean",
+              "description": "Whether can be used for repayment in loan management"
+            },
+            "can_use_for_mortgage_loan_repayment": {
+              "type": "boolean",
+              "description": "Whether can be used for repayment in loan(Mortgage) management"
+            },
+            "can_close": {
+              "type": "boolean",
+              "description": "Whether or not the user is authorized to close the account"
+            },
+            "can_pay_pgbg_from_account": {
+              "type": "boolean",
+              "description": "Whether or not the user is allowed to make PG/BG payments from this account. Only to be used for Swedish PG/BG payments hence an optional property."
+            },
+            "require_4eye_signing": {
+              "type": "boolean",
+              "description": "Whether payments from this account require 4-eye-signing"
+            }
+          },
+          "description": "Permissions that the given customer has on this account"
+        },
+        "DepositLimitCurrentYear": {
+          "type": "object",
+          "properties": {
+            "deposited_amount": {
+              "type": "number",
+              "description": "The amount that has been deposited to this account in this year. Is set for DK pension and child savings accounts.",
+              "example": 193.69
+            },
+            "remaining_amount": {
+              "type": "number",
+              "description": "The remaining amount that can be deposited to this account in this year. Is set for DK pension and child savings accounts.",
+              "example": 5806.31
+            }
+          },
+          "description": "Model for deposit limits for an account"
+        },
+        "ESGImpactInfo": {
+          "type": "object",
+          "properties": {
+            "impact_value": {
+              "type": "integer",
+              "description": "Impacted value after calculations",
+              "format": "int32",
+              "example": 3099
+            },
+            "unit_name": {
+              "type": "string",
+              "description": "Impact unit",
+              "example": "Kg"
+            }
+          },
+          "description": "ESG Impact related to FSTGreen Account"
+        },
+        "FlexiDeposit": {
+          "required": [ "auto_renewal_enabled", "current_interest_rate", "highest_allowed_balance", "interest_payment_date", "lowest_allowed_balance", "original_amount", "period_length", "start_date" ],
+          "type": "object",
+          "properties": {
+            "original_amount": {
+              "type": "number",
+              "description": "Original deposit amount in the beginning of the FlexiDeposit period",
+              "example": 2500
+            },
+            "earnings_before_tax": {
+              "type": "number",
+              "description": "Estimated deposit interest in the end of the FlexiDeposit period",
+              "example": 20
+            },
+            "tax_amount": {
+              "type": "number",
+              "description": "Estimated tax amount of the deposit interest",
+              "example": 5
+            },
+            "auto_renewal_enabled": {
+              "type": "boolean",
+              "description": "Is the fixed period automatic renewal enabled"
+            },
+            "settlement_account_number": {
+              "type": "string",
+              "description": "Settlement account number: account from which the deposits are made and to which the withdrawals are put",
+              "example": "FI5315723500047428"
+            },
+            "period_length": {
+              "type": "string",
+              "description": "FlexiDeposit period length. Format as <number><D/W/M/Q/Y>",
+              "example": "1Y"
+            },
+            "lowest_allowed_balance": {
+              "type": "number",
+              "description": "Lowest allowed balance for the account during the ongoing FlexiDeposit period",
+              "example": 500
+            },
+            "highest_allowed_balance": {
+              "type": "number",
+              "description": "Highest allowed balance during the ongoing FlexiDeposit period",
+              "example": 5000
+            },
+            "lowest_allowed_balance_in_next_period": {
+              "type": "number",
+              "description": "Lowest allowed balance for the next FlexiDeposit period",
+              "example": 700
+            },
+            "highest_allowed_balance_in_next_period": {
+              "type": "number",
+              "description": "Highest allowed balance for the next FlexiDeposit period",
+              "example": 4000
+            },
+            "lowest_balance": {
+              "type": "number",
+              "description": "Lowest balance during the ongoing FlexiDeposit period",
+              "example": 6000
+            },
+            "current_interest_rate": {
+              "type": "number",
+              "description": "Current interest rate - for a day of calling a service",
+              "example": 0.012463276
+            },
+            "interest_payment_date": {
+              "type": "string",
+              "description": "Payment date of the deposit interest",
+              "format": "date",
+              "example": "2018-05-01"
+            },
+            "start_date": {
+              "type": "string",
+              "description": "Start date of flexi deposit period",
+              "format": "date",
+              "example": "2018-05-01"
+            }
+          },
+          "description": "Model for specific product flexi deposit"
+        },
+        "Interest": {
+          "required": [ "rate_type" ],
+          "type": "object",
+          "properties": {
+            "rate_type": {
+              "type": "string",
+              "description": "Interest type, there can be multiple types on same account",
+              "enum": [ "debit", "credit", "overdraft", "bonusextra" ]
+            },
+            "accumulated_amount": {
+              "type": "number",
+              "description": "Accumulated interest amount since last booking",
+              "example": 124.15
+            },
+            "accumulated_year_amount": {
+              "type": "number",
+              "description": "Accumulated interest amount this year",
+              "example": 124.15
+            },
+            "accumulated_last_year_amount": {
+              "type": "number",
+              "description": "Accumulated interest amount last year",
+              "example": 124.15
+            },
+            "interest_intervals": {
+              "type": "array",
+              "description": "Rate intervals of the interest",
+              "items": { "$ref": "#/components/schemas/InterestInterval" }
+            }
+          },
+          "description": "Interest related to account - can have multiple of different types"
+        },
+        "InterestInfo": {
+          "required": [ "show_negative_interest_warning" ],
+          "type": "object",
+          "properties": {
+            "interest_due_date": {
+              "type": "string",
+              "description": "Due date when interest will be paid",
+              "format": "date",
+              "example": "2018-03-22"
+            },
+            "show_negative_interest_warning": {
+              "type": "boolean",
+              "description": "Due date when interest will be paid. Specifies, whether a warning message about potential negative interest rates should be displayed for the account"
+            },
+            "interests": {
+              "type": "array",
+              "description": "Interest information for the specific account, can have multiple interest definitions - one per type.",
+              "items": { "$ref": "#/components/schemas/Interest" }
+            }
+          },
+          "description": "Interest information related to an Account"
+        },
+        "InterestInterval": {
+          "type": "object",
+          "properties": {
+            "from_amount": {
+              "type": "number",
+              "description": "The balance amount where this rate is valid from",
+              "example": -10000.0
+            },
+            "to_amount": {
+              "type": "number",
+              "description": "The balance amount where this rate is valid to",
+              "example": -20000.0
+            },
+            "rate": {
+              "type": "number",
+              "description": "The interval interest rate in percent",
+              "example": 16.75
+            }
+          },
+          "description": "Interest interval for a given interest"
+        },
+        "Role": {
+          "required": [ "role" ],
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Name of the customer",
+              "example": "Henrik Kier"
+            },
+            "role": {
+              "type": "string",
+              "description": "Role of the customer on the account",
+              "enum": [ "owner", "co_owner", "power_of_attorney", "power_of_attorney_group", "guardian", "guardian_adult" ]
+            },
+            "current_user": {
+              "type": "boolean",
+              "description": "Marks if the role belongs to the currently logged in user"
+            }
+          },
+          "description": "Name and role of the customer ",
+          "example": {"name": "Henrik Kier", "role": "owner", "currentUser": true}
+        },
+        "StandardOverdraft": {
+          "type": "object",
+          "properties": {
+            "granted_amount": {
+              "type": "number",
+              "description": "overdraft amount",
+              "example": 800.0
+            },
+            "from_date": {
+              "type": "string",
+              "description": "overdraft start date",
+              "format": "date",
+              "example": "2022-05-30"
+            },
+            "to_date": {
+              "type": "string",
+              "description": "overdraft end date",
+              "format": "date",
+              "example": "2022-07-26"
+            },
+            "interest_intervals": { "$ref": "#/components/schemas/InterestInterval" }
+          },
+          "description": "Name and role of the customer "
+        },
+        "TemporaryOverdraft": {
+          "type": "object",
+          "properties": {
+            "granted_amount": {
+              "type": "number",
+              "description": "overdraft amount",
+              "example": 800.0
+            },
+            "from_date": {
+              "type": "string",
+              "description": "overdraft start date",
+              "format": "date",
+              "example": "2022-05-30"
+            },
+            "to_date": {
+              "type": "string",
+              "description": "overdraft end date",
+              "format": "date",
+              "example": "2022-07-26"
+            },
+            "interest_intervals": { "$ref": "#/components/schemas/InterestInterval" }
+          },
+          "description": "Name and role of the customer "
+        },
+        "TransactionListSearchCriteria": {
+          "required": [ "can_use_end_date", "can_use_free_text", "can_use_highest_amount", "can_use_lowest_amount", "can_use_start_date" ],
+          "type": "object",
+          "properties": {
+            "can_use_start_date": {
+              "type": "boolean",
+              "description": "If the search possibility start_date can be used"
+            },
+            "min_start_date": {
+              "type": "string",
+              "description": "Minimum possible start_date that can be used - if non given, there are no minimum date",
+              "format": "date",
+              "example": "2017-01-01"
+            },
+            "can_use_end_date": {
+              "type": "boolean",
+              "description": "If the search possibility end_date can be used"
+            },
+            "can_use_lowest_amount": {
+              "type": "boolean",
+              "description": "If the search possibility lowest_amount can be used"
+            },
+            "can_use_highest_amount": {
+              "type": "boolean",
+              "description": "If the search possibility highest_amount can be used"
+            },
+            "can_use_free_text": {
+              "type": "boolean",
+              "description": "If the search possibility free_text can be used"
+            },
+            "sort_by_list": {
+              "type": "array",
+              "description": "List of sort_by that can be used, if element null then none can be used",
+              "items": {
+                "type": "string",
+                "description": "Supported sort attribute in ascending or descending order",
+                "enum": [ "amount_asc", "amount_desc", "transaction_date_asc", "transaction_date_desc" ]
+              }
+            }
+          },
+          "description": "What search parameters are available this account - the criteria refers to what is possible when getting list of Transactions.If it is possible on the current account to search with the parameter on getTransactions then it will be true here. Also there are the criteria that some parameters have minimum or maximum, these can be used for frontend validation."
+        },
+        "ResourceNotFound": {
+          "required": [ "error", "error_description", "http_status" ],
+          "type": "object",
+          "properties": {
+            "error_reason": {
+              "type": "string",
+              "description": "The detailed reason that can be used for the logging and problem solving purposes."
+            },
+            "error": {
+              "type": "string",
+              "description": "Error code",
+              "example": "resource_not_found",
+              "enum": [ "resource_not_found" ]
+            },
+            "error_description": {
+              "type": "string",
+              "description": "The human readable description of the error.",
+              "example": "The requested resource was not found."
+            },
+            "http_status": {
+              "type": "integer",
+              "description": "HTTP status",
+              "format": "int32",
+              "enum": [ 404 ]
+            }
+          }
+        },
+        "Card": {
+          "type": "object",
+          "properties": {
+            "card_number": {
+              "type": "string",
+              "description": "Masked number of the debit card used to charge the account.",
+              "example": "5555XXXXXXXX4444"
+            },
+            "merchant_city": {
+              "type": "string",
+              "description": "The city of the merchant where the transaction happened."
+            },
+            "merchant_country": {
+              "type": "string",
+              "description": "The country of the merchant where the transaction happened."
+            }
+          },
+          "description": "Extra transaction details for a card transaction"
+        },
+        "DirectDebitDetails": {
+          "required": [ "agreement", "source" ],
+          "type": "object",
+          "properties": {
+            "source": {
+              "type": "string",
+              "description": "Enumeration of the direct debit sources that the accounts system is aware of",
+              "enum": [ "betalingsservice_dk" ]
+            },
+            "agreement": {
+              "type": "string",
+              "description": "Direct debit agreement id associated with the transaction"
+            }
+          },
+          "description": "Extra transaction details about direct debit payments"
+        },
+        "Exchange": {
+          "type": "object",
+          "properties": {
+            "original_amount": {
+              "type": "number",
+              "description": "The amount of the transaction in the original currency.",
+              "example": 100.0
+            },
+            "original_currency": {
+              "type": "string",
+              "description": "The original currency code according to ISO 4217.",
+              "example": "EUR"
+            },
+            "original_rate": {
+              "type": "number",
+              "description": "The original currency rate."
+            },
+            "payment_code": {
+              "type": "string",
+              "description": "The payment code for international payments."
+            }
+          },
+          "description": "Extra transaction details for an exchanged transaction"
+        },
+        "Mobile": {
+          "type": "object",
+          "properties": {
+            "to_phone": {
+              "type": "string",
+              "description": "Detail only - The phone number where the transaction has been sent to"
+            },
+            "from_phone": {
+              "type": "string",
+              "description": "Detail only - The phone number where the transaction has been sent from"
+            },
+            "reference": {
+              "type": "string",
+              "description": "Detail only - Any reference number/code that relates to the transaction"
+            },
+            "name": {
+              "type": "string",
+              "description": "Detail only - Name of the mobile agreement holder"
+            }
+          },
+          "description": "Extra transaction details for a mobile transaction"
+        },
+        "ServicesFee": {
+          "type": "object",
+          "properties": {
+            "customer_type": {
+              "type": "string",
+              "description": "Detail only - Customer type code of account owner"
+            },
+            "customer_type_name": {
+              "type": "string",
+              "description": "Detail only - Customer type of account owner, so like premium, gold etc."
+            },
+            "discount": {
+              "type": "integer",
+              "description": "Detail only - If any discount has been in use",
+              "format": "int32"
+            },
+            "fee_texts": {
+              "type": "string",
+              "description": "Detail only - Fee texts - can be multiple separated by unix line break"
+            }
+          },
+          "description": "Extra transaction details for the service fee information of the transaction"
+        },
+        "Transaction": {
+          "required": [ "booked" ],
+          "type": "object",
+          "properties": {
+            "transaction_id": {
+              "type": "string",
+              "description": "The unique ID of the transaction. Some transactions may not have an ID, in those cases the id is not present (null). For these transactions it is not possible to get details of such transactions",
+              "example": "NAID-FI-EUR-FI3258211903244"
+            },
+            "has_details": {
+              "type": "boolean",
+              "description": "Indicates whether there is more information about the transaction besides what is available in the transaction list. If present and true the extra information can be retrieved by calling the getTransaction endpoint with the transaction id"
+            },
+            "booked": {
+              "type": "boolean",
+              "description": "Indicates if the transaction has been booked. True if booked transaction, false otherwise"
+            },
+            "amount": {
+              "type": "number",
+              "description": "The amount of the transaction in the currency of the account.",
+              "example": -100.0
+            },
+            "currency": {
+              "type": "string",
+              "description": "Currency of the transaction as currency code (ISO 4217). Always currency of the account.",
+              "example": "EUR"
+            },
+            "booking_date": {
+              "type": "string",
+              "description": "Date at which the transaction was registered in the system. AKA booking date. (YYYY-MM-DD)",
+              "format": "date",
+              "example": "2017-01-15"
+            },
+            "interest_date": {
+              "type": "string",
+              "description": "Date at which the interest will be calculated. (YYYY-MM-DD)",
+              "format": "date",
+              "example": "2017-01-16"
+            },
+            "transaction_date": {
+              "type": "string",
+              "description": "Date at which the transaction happened. (YYYY-MM-DD)",
+              "format": "date",
+              "example": "2017-01-14"
+            },
+            "title": {
+              "type": "string",
+              "description": "Title of the transaction, that can many different thing depending on type of transaction. Example it be counter party name, transfer type etc.",
+              "example": "SALIN MARKETA"
+            },
+            "description": {
+              "type": "string",
+              "description": "Description of the transaction."
+            },
+            "reference_number": {
+              "type": "string",
+              "description": "Reference number or OCR code.",
+              "example": "8 68624"
+            },
+            "archive_id": {
+              "type": "string",
+              "description": "Archived identification code",
+              "example": "1703292588NGM81943"
+            },
+            "debtor_id": {
+              "type": "string",
+              "description": "Id of party that owes an amount of money to creditor ",
+              "example": "815FD24067"
+            },
+            "balance_after": {
+              "type": "number",
+              "description": "Balance on the account after the transaction",
+              "example": -100000.0
+            },
+            "to_account_number": {
+              "type": "string",
+              "description": "Receiver’s account number",
+              "example": "184093"
+            },
+            "to_account_name": {
+              "type": "string",
+              "description": "Receiver’s account holder name",
+              "example": "MATTI MEIKÄ"
+            },
+            "to_account_address": {
+              "type": "string",
+              "description": "Detail only - Receiver’s account holder address",
+              "example": "150, FREDENSGADE VALBY,  2500"
+            },
+            "to_account_country": {
+              "type": "string",
+              "description": "Detail only - Receiver’s account country",
+              "example": "SE"
+            },
+            "from_account_number": {
+              "type": "string",
+              "description": "Sender's account number",
+              "example": "184093"
+            },
+            "from_account_name": {
+              "type": "string",
+              "description": "Sender's account holder name",
+              "example": "MATTI MEIKÄ"
+            },
+            "from_account_address": {
+              "type": "string",
+              "description": "Detail only - Sender's account holder address"
+            },
+            "from_account_country": {
+              "type": "string",
+              "description": "Detail only - Sender's account country",
+              "example": "SE"
+            },
+            "bank_name": {
+              "type": "string",
+              "description": "Detail only - The name of the bank"
+            },
+            "bank_address": {
+              "type": "string",
+              "description": "Detail only - The address of the bank"
+            },
+            "bank_code": {
+              "type": "string",
+              "description": "Detail only - The code of the bank"
+            },
+            "bic": {
+              "type": "string",
+              "description": "BIC code of the recipient",
+              "example": "BHBLDEHHXXX"
+            },
+            "counterpart_bank_bic": {
+              "type": "string",
+              "description": "BIC code of the counterparty's bank",
+              "example": "BHBLDEHHXXX"
+            },
+            "message": {
+              "type": "string",
+              "description": "Any messages from or to the beneficiary - can be multiline"
+            },
+            "is_einvoice_enabled": {
+              "type": "boolean",
+              "description": "Whether the E-invoice is enabled or not. This is available in the transaction list"
+            },
+            "bank_giro_information_available": {
+              "type": "boolean",
+              "description": "Whether more information about the transaction is known to be available in BankGirot and that the frontend should add an SSO link to BankGirot."
+            },
+            "eredovisning_information_available": {
+              "type": "boolean",
+              "description": "Whether more information about the transaction is known to be available in eRedovisning and that the frontend should add an SSO link to eRedovisning."
+            },
+            "actual_payer_name": {
+              "type": "string",
+              "description": "Actual Payer name, for instance parent company of 'fromAccountName'",
+              "example": "Nordea Bank AB (publ)"
+            },
+            "actual_beneficiary_name": {
+              "type": "string",
+              "description": "Actual Beneficiary name, for instance parent company of 'toAccountName'",
+              "example": "Nordea Bank AB (publ)"
+            },
+            "originators_reference": {
+              "type": "string",
+              "description": "Reference given to the transaction/deal by the Customer/correspondent bank, e.g. Their reference for SWIFT, cheque serial number.",
+              "example": "AA160494MZSH"
+            },
+            "initial_invoice_archive_id": {
+              "type": "string",
+              "description": "Initial archive id of invoice, used when it's received into our systems",
+              "example": "2809258897MA0004"
+            },
+            "own_reference": {
+              "type": "string",
+              "description": "Own notes and references given to the transaction/deal by the Customer"
+            },
+            "transfer_type": {
+              "type": "string",
+              "description": "The tranfertype code for international payments."
+            },
+            "transfer_type_name": {
+              "type": "string",
+              "description": "The transfer type name for international payments",
+              "enum": [ "normal", "standard", "urgent", "express" ]
+            },
+            "requested_execution_date": {
+              "type": "string",
+              "description": "The requested execution date for the transaction.",
+              "format": "date"
+            },
+            "counterpart_account_name": {
+              "type": "string",
+              "description": "Descriptive name for either the 'from account' (ingoing transactions) or 'to account' (outgoing transactions). Derived from nickname, beneficiary or payee registration"
+            },
+            "transaction_type": { "$ref": "#/components/schemas/TransactionType" },
+            "exchange": { "$ref": "#/components/schemas/Exchange" },
+            "card": { "$ref": "#/components/schemas/Card" },
+            "mobile": { "$ref": "#/components/schemas/Mobile" },
+            "services_fee": { "$ref": "#/components/schemas/ServicesFee" },
+            "additional_transaction_details": {
+              "type": "string",
+              "description": "Additional details information for better describing a transaction details."
+            },
+            "grouping_id": {
+              "type": "string",
+              "description": "This is a unique id for grouping transactions together that logically belong together, for example transactions that belong to the same file import"
+            },
+            "reconciliation_status": {
+              "type": "string",
+              "description": "Hold information on reconciliation status of the transaction",
+              "enum": [ "not_possible", "not_done", "done" ]
+            },
+            "reconciliation_id": {
+              "type": "string",
+              "description": "This is a unique id for handling reconciliation of the transaction"
+            },
+            "direct_debit_details": { "$ref": "#/components/schemas/DirectDebitDetails" },
+            "payment_urgency": {
+              "type": "string",
+              "description": "Ordinary, urgent or same-day-value for a payment.Used for cross-border payments.",
+              "example": "N"
+            },
+            "transfer_purpose": {
+              "type": "string",
+              "description": "Transfer purpose code for cross boarder payments"
+            },
+            "payer_identifier": {
+              "type": "string",
+              "description": "Number used for identifying a payer of an invoice (KID). This value is only used in Norway",
+              "example": "2135245545415415"
+            },
+            "can_reject": {
+              "type": "boolean",
+              "description": "Shows whether this transaction can be reject."
+            },
+            "reject_status": {
+              "type": "string",
+              "description": "Status of the account",
+              "enum": [ "cancelled", "complete", "inprogress", "onhold" ]
+            },
+            "correction": { "type": "boolean" },
+            "einvoice_url_external": { "type": "string" },
+            "einvoice_id": { "type": "string" },
+            "einvoice_url": { "type": "string" }
+          },
+          "description": "The transaction object that contains information regarding one transaction. Subelements is extra information of the transaction and will be filled based on transaction type<br><br>This model is used both for list and single transaction. Elements NOT filled on list have \"Detail only\" in description."
+        },
+        "TransactionType": {
+          "type": "object",
+          "properties": {
+            "transaction_group": {
+              "type": "string",
+              "description": "Detail only - The group type of the transactions",
+              "example": "13"
+            },
+            "transaction_group_text": {
+              "type": "string",
+              "description": "Detail only - The group type of the transactions (localized from core banking).",
+              "example": "Itsepalvelu"
+            },
+            "transaction_code": {
+              "type": "string",
+              "description": "The type code of the transactions",
+              "example": "SE00123"
+            },
+            "transaction_code_text": {
+              "type": "string",
+              "description": "The type code text of the transactions (localized according to accept-language). Will in SE not be filled with data from core banking, but from properties files in dbf-account-se",
+              "example": "Withdrawal"
+            }
+          },
+          "description": "Details of the transaction type"
+        },
+        "TransactionEnvelope": {
+          "required": [ "result" ],
+          "type": "object",
+          "properties": {
+            "result": {
+              "type": "array",
+              "description": "Collection of Transaction object",
+              "items": { "$ref": "#/components/schemas/Transaction" }
+            },
+            "total_size": {
+              "type": "integer",
+              "description": "The total number of items in the backend - When having a huge list it may be nice for the client to know how many elements there are totally in the backend",
+              "format": "int32"
+            },
+            "continuation_key": {
+              "type": "string",
+              "description": "Continuation key that can be used to fetch the next batch of transactions. In case \"continuationKey\" is not present it means that no more transactions. Will NOT follow specific format",
+              "example": "abc-123.145"
+            },
+            "country": {
+              "type": "string",
+              "description": "Country code for the account that the transaction list belongs to",
+              "example": "NO"
+            },
+            "sub_system_errors": {
+              "type": "array",
+              "description": "Collection of SubServiceErrorEnums",
+              "items": {
+                "type": "string",
+                "description": "Indication of which sub system was unable to process the request",
+                "enum": [ "account_cbp_service_error", "account_dk_service_error", "account_fi_service_error", "account_no_service_error", "account_se_service_error", "account_ca_service_error", "nickname_service_error", "beneficiary_service_error", "reconciliation_service_error" ]
+              }
+            }
+          },
+          "description": "Transaction list wrapper"
+        },
+        "InvalidRequest": {
+          "required": [ "error", "error_description", "http_status" ],
+          "type": "object",
+          "properties": {
+            "error_reason": {
+              "type": "string",
+              "description": "The detailed reason that can be used for the logging and problem solving purposes."
+            },
+            "error": {
+              "type": "string",
+              "description": "Error code",
+              "example": "invalid_request",
+              "enum": [ "invalid_request" ]
+            },
+            "error_description": {
+              "type": "string",
+              "description": "The human readable description of the error.",
+              "example": "The client request was invalid."
+            },
+            "http_status": {
+              "type": "integer",
+              "description": "HTTP status",
+              "format": "int32",
+              "enum": [ 400 ]
+            }
+          }
+        },
+        "UnauthorizedAccess": {
+          "required": [ "error", "error_description", "http_status" ],
+          "type": "object",
+          "properties": {
+            "error_reason": {
+              "type": "string",
+              "description": "The detailed reason that can be used for the logging and problem solving purposes."
+            },
+            "error": {
+              "type": "string",
+              "description": "Error code",
+              "example": "invalid_token",
+              "enum": [ "invalid_token", "unauthorized"]
+            },
+            "error_description": {
+              "type": "string",
+              "description": "The human readable description of the error.",
+              "example": "The access to the requested resource was unauthorized."
+            },
+            "http_status": {
+              "type": "integer",
+              "description": "HTTP status",
+              "format": "int32",
+              "enum": [ 401 ]
+            }
+          }
+        },
+        "Forbidden": {
+          "required": [ "error", "error_description", "http_status" ],
+          "type": "object",
+          "properties": {
+            "error_reason": {
+              "type": "string",
+              "description": "The detailed reason that can be used for the logging and problem solving purposes."
+            },
+            "error": {
+              "type": "string",
+              "description": "Error code",
+              "example": "insufficient_scope",
+              "enum": [ "insufficient_scope","access_denied" ]
+            },
+            "error_description": {
+              "type": "string",
+              "description": "The human readable description of the error.",
+              "example": "The access to request resource was denied. Current access token does not contain the required privileges."
+            },
+            "http_status": {
+              "type": "integer",
+              "description": "HTTP status",
+              "format": "int32",
+              "enum": [ 403 ]
+            }
+          }
+        },
+        "InternalServerError": {
+          "required": [ "error", "error_description", "http_status" ],
+          "type": "object",
+          "properties": {
+            "error_reason": {
+              "type": "string",
+              "description": "The detailed reason that can be used for the logging and problem solving purposes."
+            },
+            "error": {
+              "type": "string",
+              "description": "Error code",
+              "example": "internal_server_error",
+              "enum": [ "internal_server_error" ]
+            },
+            "error_description": {
+              "type": "string",
+              "description": "The human readable description of the error.",
+              "example": "Something went wrong. Please try again later."
+            },
+            "http_status": {
+              "type": "integer",
+              "description": "HTTP status",
+              "format": "int32",
+              "enum": [ 500 ]
+            }
+          }
+        },
+        "NotImplemented": {
+          "required": [ "error", "error_description", "http_status" ],
+          "type": "object",
+          "properties": {
+            "error_reason": {
+              "type": "string",
+              "description": "The detailed reason that can be used for the logging and problem solving purposes."
+            },
+            "error": {
+              "type": "string",
+              "description": "Error code",
+              "example": "not_implemented",
+              "enum": [ "not_implemented" ]
+            },
+            "error_description": {
+              "type": "string",
+              "description": "The human readable description of the error.",
+              "example": "The request is not supported."
+            },
+            "http_status": {
+              "type": "integer",
+              "description": "HTTP status",
+              "format": "int32",
+              "enum": [ 501 ]
+            }
+          }
+        },
+        "ServiceUnavailable": {
+          "required": [ "error", "error_description", "http_status" ],
+          "type": "object",
+          "properties": {
+            "error_reason": {
+              "type": "string",
+              "description": "The detailed reason that can be used for the logging and problem solving purposes."
+            },
+            "error": {
+              "type": "string",
+              "description": "Error code",
+              "example": "service_unavailable",
+              "enum": [ "service_unavailable" ]
+            },
+            "error_description": {
+              "type": "string",
+              "description": "The human readable description of the error.",
+              "example": "Something went wrong. Please try again later."
+            },
+            "http_status": {
+              "type": "integer",
+              "description": "HTTP status",
+              "format": "int32",
+              "enum": [ 503 ]
+            }
+          }
+        }
+      },
+      "securitySchemes": {
+        "nordea-token": {
+          "type": "oauth2",
+          "description": "Customer Nordea Token as Bearer authorisation.",
+          "flows": {
+            "authorizationCode": {
+              "authorizationUrl": "https://nasa.dbf.oneadr.net",
+              "tokenUrl": "https://token-service-v3.dbf.oneadr.net/oauth/token",
+              "scopes": {
+                "openid": "Default OpenID Connect scope",
+                "ndf": "Global NDF Access",
+                "agreement": "Channel agreement must be found and included in the token. Selection required if many found.",
+                "agreement.optional": "Channel agreement is included in the token if found",
+                "agreement.primary": "Channel agreement must be found and included in the token. User primary agreement is chosen if many found.",
+                "basic-customer-access": "Basic Customer Access (added by MuleSoft for compliance)"
+              }
+            }
+          }
+        },
+        "internal-nordea-token": {
+          "type": "http",
+          "description": "Internal or Customer Nordea Token as Bearer authorisation.",
+          "scheme": "bearer",
+          "bearerFormat": "JWT"
+        }
+      }
+    }
+  }
