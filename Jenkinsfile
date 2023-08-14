@@ -74,6 +74,7 @@ pipeline  {
         stage('Check API version') {
             steps {
                 script {
+                    export NODE_DEBUG=request,http,axios
 
                     // check if API version is in Exchange
                     status = sh(returnStatus: true, script: "anypoint-cli-v4 exchange:asset:describe ${assetId}/${assetVersion} -o json")
