@@ -74,6 +74,7 @@ pipeline  {
         stage('Check API version') {
             steps {
                 script {
+                    echo "HELLLLOO!!!!!!!!!!!!!!!!"
                     export NODE_DEBUG=request,http,axios
 
                     // check if API version is in Exchange
