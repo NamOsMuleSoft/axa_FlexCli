@@ -80,7 +80,7 @@ pipeline  {
             steps {
                 script {
                     echo "HELLLLOO!!!!!!!!!!!!!!!!"
-                    echo "ANYPOINT_CLIENT_ID: ${ANYPOINT_CLIENT_ID}"
+                    //echo "ANYPOINT_CLIENT_ID: ${ANYPOINT_CLIENT_ID}"
                     env
 
                     // check if API version is in Exchange
