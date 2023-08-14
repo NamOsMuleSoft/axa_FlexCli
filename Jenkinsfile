@@ -24,11 +24,11 @@ pipeline  {
 
         //QUe es ANYPOINT_CLIEN: T solo para retrieve user and pass??
         //ANYPOINT_CLIENT = "268c10e4c2fc44fab9f968b414b28735/e0d581990cFB45029fDd6D09F9176501"
-        //ANYPOINT_CLIENT_ID = "268c10e4c2fc44fab9f968b414b28735"
-        //ANYPOINT_CLIENT_SECRET = "axaPass0rd1!"
+        ANYPOINT_CLIENT_ID = "268c10e4c2fc44fab9f968b414b28735"
+        ANYPOINT_CLIENT_SECRET = "axaPass0rd1!"
 
-        ANYPOINT_USERNAME = "NamDemo"
-        ANYPOINT_PASSWORD = "getThatThingDone1!"
+        //ANYPOINT_USERNAME = "NamDemo"
+        //ANYPOINT_PASSWORD = "getThatThingDone1!"
 
         //ANYPOINT_CLIENT_ID = "NamDemo"
         //ANYPOINT_CLIENT_SECRET = "getThatThingDone1!"
