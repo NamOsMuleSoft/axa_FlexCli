@@ -1,20 +1,35 @@
 pipeline  {
 
-    agent {
-        label "system42-builder"
-    }
+    //agent {
+    //    label "system42-builder"
+    //}
+
+    agent any
 
     environment {
         
-        ANYPOINT_ORG = credentials("${env.BRANCH_NAME}-anypoint-organization-name")
-        ANYPOINT_ENV = credentials("${env.BRANCH_NAME}-anypoint-environment-name")
+        //ANYPOINT_ORG = credentials("${env.BRANCH_NAME}-anypoint-organization-name")
+        //ANYPOINT_ENV = credentials("${env.BRANCH_NAME}-anypoint-environment-name")
 
-        ANYPOINT_CLIENT = credentials("${env.BRANCH_NAME}-anypoint-cicd-service-account")
-        ANYPOINT_CLIENT_ID = "${ANYPOINT_CLIENT_USR}"
-        ANYPOINT_CLIENT_SECRET = "${ANYPOINT_CLIENT_PSW}"
+        //ANYPOINT_CLIENT = credentials("${env.BRANCH_NAME}-anypoint-cicd-service-account")
+        //ANYPOINT_CLIENT_ID = "${ANYPOINT_CLIENT_USR}"
+        //ANYPOINT_CLIENT_SECRET = "${ANYPOINT_CLIENT_PSW}"
         
         
-        ANYPOINT_DEPLOYER = credentials("${env.BRANCH_NAME}-anypoint-api-deployer-account")
+        //ANYPOINT_DEPLOYER = credentials("${env.BRANCH_NAME}-anypoint-api-deployer-account")
+
+
+        ANYPOINT_ORG = "268c10e4c2fc44fab9f968b414b28735"
+        ANYPOINT_ENV = "f26323b1-9dd7-405a-8d40-eec251ad141d"
+
+        ANYPOINT_CLIENT = "268c10e4c2fc44fab9f968b414b28735"
+        ANYPOINT_CLIENT_ID = "268c10e4c2fc44fab9f968b414b28735"
+        ANYPOINT_CLIENT_SECRET = "e0d581990cFB45029fDd6D09F9176501"
+
+        ANYPOINT_DEPLOYER_USR = "NamDemo"
+        ANYPOINT_DEPLOYER_PSW = "getThatThingDone1!"
+        
+        
 
         
         API_SPEC_FILE = "AccountsAPIDocumentation.json"
@@ -24,7 +39,9 @@ pipeline  {
         API_INSTANCE_LABEL = "cicd-created"
         API_INSTANCE_LISTEN_PORT = "80"
 
-        FLEX_GATEWAY_TARGET_ID = credentials("${env.BRANCH_NAME}-flex-gw-target-id")
+        //FLEX_GATEWAY_TARGET_ID = credentials("${env.BRANCH_NAME}-flex-gw-target-id")
+
+        FLEX_GATEWAY_TARGET_ID = "8ec2601b-c2d5-4b43-97e5-40b2ebf1dbeb"
     }
 
     stages {
