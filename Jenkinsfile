@@ -33,8 +33,8 @@ pipeline  {
         //ANYPOINT_CLIENT_ID = "NamDemo"
         //ANYPOINT_CLIENT_SECRET = "getThatThingDone1!"
 
-        //ANYPOINT_DEPLOYER_USR = "NamDemo"
-        //ANYPOINT_DEPLOYER_PSW = "getThatThingDone1!"
+        ANYPOINT_DEPLOYER_USR = "NamDemo"
+        ANYPOINT_DEPLOYER_PSW = "getThatThingDone1!"
 
         
         
