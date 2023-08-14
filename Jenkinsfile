@@ -80,6 +80,7 @@ pipeline  {
             steps {
                 script {
                     echo "HELLLLOO!!!!!!!!!!!!!!!!"
+                    echo "ANYPOINT_CLIENT_ID: ${ANYPOINT_CLIENT_ID}"
 
                     // check if API version is in Exchange
                     status = sh(returnStatus: true, script: "anypoint-cli-v4 exchange:asset:describe ${assetId}/${assetVersion} -o json")
