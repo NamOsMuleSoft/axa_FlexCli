@@ -5,7 +5,7 @@
       "description": "The Account API provides means to get accounts and transactions.",
       "contact": { "url": "https://overview.tools.ndinfra.oneadr.net/teams" },
       "license": { "name": "AXA" },
-      "version": "7.0.0"
+      "version": "7.0.1"
     },
     "servers": [
       {
