@@ -1,10 +1,10 @@
 pipeline  {
 
-    //agent {
-    //    label "system42-builder"
-    //}
+    agent {
+        label "system42-builder"
+    }
 
-    agent any
+
 
     environment {
         
