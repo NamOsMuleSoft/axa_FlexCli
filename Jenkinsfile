@@ -84,7 +84,7 @@ pipeline  {
                     env
 
                     // check if API version is in Exchange
-                    status = sh(returnStatus: true, script: "anypoint-cli-v4 exchange:asset:list --username NamDemo --password getThatThingDone1! --organizationId 21448f2a-f782-42b5-b7ea-3c78f2cd1c5d --offset 1 --output json")
+                    status = sh(returnStatus: true, script: "anypoint-cli-v4 exchange:asset:describe ${assetId}/${assetVersion} -o json")
                     echo "Exchange asset describe result status: ${status}"
                     assetVersionNotInExchange = status != 0
 
