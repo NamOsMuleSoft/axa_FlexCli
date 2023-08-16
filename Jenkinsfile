@@ -47,7 +47,13 @@ pipeline  {
 
         //FLEX_GATEWAY_TARGET_ID = credentials("${env.BRANCH_NAME}-flex-gw-target-id")
 
-        FLEX_GATEWAY_TARGET_ID = "8ec2601b-c2d5-4b43-97e5-40b2ebf1dbeb"
+
+
+        //EKS my ORG
+        //FLEX_GATEWAY_TARGET_ID = "8ec2601b-c2d5-4b43-97e5-40b2ebf1dbeb"
+
+        //Docker my ORG
+        FLEX_GATEWAY_TARGET_ID = "0550b3b0-aaaa-4c76-b7ac-ac69d9bca009"
     }
 
     stages {
@@ -80,10 +86,6 @@ pipeline  {
         stage('Check API version') {
             steps {
                 script {
-                    echo "HELLLLOO!!!!!!!!!!!!!!!!"
-                    //echo "ANYPOINT_CLIENT_ID: ${ANYPOINT_CLIENT_ID}"
-                    env
-
                     // check if API version is in Exchange
                     status = sh(returnStatus: true, script: "anypoint-cli-v4 exchange:asset:describe ${assetId}/${assetVersion} -o json")
                     echo "Exchange asset describe result status: ${status}"
