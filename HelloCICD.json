@@ -1,0 +1,39 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "HelloCICD",
+    "version": "1.0"
+  },
+  "paths": {
+    "/hello": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "message"
+                  ],
+                  "properties": {
+                    "message": {
+                      "default": "hello Nam",
+                      "example": "hello Nam",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+
+
+
