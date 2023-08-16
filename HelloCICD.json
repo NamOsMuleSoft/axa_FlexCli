@@ -4,11 +4,11 @@
     "title": "HelloCICD",
     "description": "Test API.",
     "license": { "name": "AXA" },
-    "version": "1.0.0"
+    "version": "2.0.0"
   },
   "servers": [
     {
-      "url": "http://accounts-v3.dbf.oneadr.net",
+      "url": "https://anypoint.mulesoft.com",
       "description": "Generated server url"
     }
   ],
