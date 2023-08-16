@@ -41,7 +41,7 @@ pipeline  {
         API_SPEC_FILE = "HelloCICD.json"
         POLICIES_FILE = "policies.json"
 
-        API_INSTANCE_UPSTREAM_ENDPOINT_URI = "http://accounts-api-mock-inu0ht.5sc6y6-2.usa-e2.cloudhub.io/api"
+        API_INSTANCE_UPSTREAM_ENDPOINT_URI = "https://anypoint.mulesoft.com/mocking/api/v1/sources/exchange/assets/21448f2a-f782-42b5-b7ea-3c78f2cd1c5d/hellocicd-cicd/1.0.0/m/"
         API_INSTANCE_LABEL = "cicd-created"
         API_INSTANCE_LISTEN_PORT = "80"
 
