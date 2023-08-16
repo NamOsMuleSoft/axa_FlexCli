@@ -50,10 +50,10 @@ pipeline  {
 
 
         //EKS my ORG
-        //FLEX_GATEWAY_TARGET_ID = "8ec2601b-c2d5-4b43-97e5-40b2ebf1dbeb"
+        FLEX_GATEWAY_TARGET_ID = "8ec2601b-c2d5-4b43-97e5-40b2ebf1dbeb"
 
         //Docker my ORG
-        FLEX_GATEWAY_TARGET_ID = "0550b3b0-aaaa-4c76-b7ac-ac69d9bca009"
+        //FLEX_GATEWAY_TARGET_ID = "0550b3b0-aaaa-4c76-b7ac-ac69d9bca009"
     }
 
     stages {
