@@ -38,9 +38,7 @@ pipeline  {
 
         
         
-
-        
-        API_SPEC_FILE = "AccountsAPIDocumentation.json"
+        API_SPEC_FILE = "HelloCICD.json"
         POLICIES_FILE = "policies.json"
 
         API_INSTANCE_UPSTREAM_ENDPOINT_URI = "http://accounts-api-mock-inu0ht.5sc6y6-2.usa-e2.cloudhub.io/api"
