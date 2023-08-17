@@ -15,23 +15,14 @@ pipeline  {
         //ANYPOINT_CLIENT_ID = "${ANYPOINT_CLIENT_USR}"
         //ANYPOINT_CLIENT_SECRET = "${ANYPOINT_CLIENT_PSW}"
         
-        
         //ANYPOINT_DEPLOYER = credentials("${env.BRANCH_NAME}-anypoint-api-deployer-account")
 
 
         ANYPOINT_ORG = "21448f2a-f782-42b5-b7ea-3c78f2cd1c5d"
-        //ANYPOINT_ENV = "Sanbox"
 
-        //QUe es ANYPOINT_CLIEN: T solo para retrieve user and pass??
-        //ANYPOINT_CLIENT = "268c10e4c2fc44fab9f968b414b28735/e0d581990cFB45029fDd6D09F9176501"
+
         ANYPOINT_CLIENT_ID = "268c10e4c2fc44fab9f968b414b28735"
         ANYPOINT_CLIENT_SECRET = "axaPass0rd1!"
-
-        //ANYPOINT_USERNAME = "NamDemo"
-        //ANYPOINT_PASSWORD = "getThatThingDone1!"
-
-        //ANYPOINT_CLIENT_ID = "NamDemo"
-        //ANYPOINT_CLIENT_SECRET = "getThatThingDone1!"
 
         ANYPOINT_DEPLOYER_USR = "NamDemo"
         ANYPOINT_DEPLOYER_PSW = "getThatThingDone1!"
