@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "HelloCICDAPI",
+    "title": "HelloCICD",
     "description": "Test API.",
     "license": { "name": "AXA" },
     "version": "4.0.1"
