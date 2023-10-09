@@ -29,7 +29,7 @@ pipeline  {
 
         
         
-        API_SPEC_FILE = "HelloCICDAPI.json"
+        API_SPEC_FILE = "HelloCICD.json"
         POLICIES_FILE = "policies.json"
 
         API_INSTANCE_UPSTREAM_ENDPOINT_URI = "https://anypoint.mulesoft.com/mocking/api/v1/sources/exchange/assets/21448f2a-f782-42b5-b7ea-3c78f2cd1c5d/hellocicd-cicd/1.0.0/m/"
